@@ -1,5 +1,8 @@
 import psl from 'psl';
 import RouteRecognizer from 'route-recognizer';
+import _ from 'lodash';
+import { defaultRules } from '../common/radar-rules';
+import { defaultConfig } from '../common/config';
 
 function ruleHandler(rule, params, url, html, success, fail) {
     const run = () => {
@@ -68,14 +71,33 @@ function formatBlank(str1, str2) {
 }
 
 function parseRules(rules) {
-    return typeof rules === 'string' ? window['lave'.split('').reverse().join('')](rules) : rules;
+    let incomeRules = rules;
+    if (typeof rules === 'string') {
+        if (defaultConfig.enableFullRemoteRules) {
+            incomeRules = window['lave'.split('').reverse().join('')](rules);
+        } else {
+            incomeRules = JSON.parse(rules);
+        }
+    }
+    return _.mergeWith(defaultRules, incomeRules, (objValue, srcValue) => {
+        if (_.isFunction(srcValue)) {
+            return srcValue;
+        } else if (_.isFunction(objValue)) {
+            return objValue;
+        }
+    });
 }
 
 export function getPageRSSHub(data) {
     const { url, html } = data;
     const rules = parseRules(data.rules);
 
-    const parsedDomain = psl.parse(new URL(url).hostname);
+    let parsedDomain;
+    try {
+        parsedDomain = psl.parse(new URL(url).hostname);
+    } catch (error) {
+        return [];
+    }
     if (parsedDomain && parsedDomain.domain) {
         const subdomain = parsedDomain.subdomain;
         const domain = parsedDomain.domain;
@@ -175,7 +197,12 @@ export function getPageRSSHub(data) {
 export function getWebsiteRSSHub(data) {
     const { url } = data;
     const rules = parseRules(data.rules);
-    const parsedDomain = psl.parse(new URL(url).hostname);
+    let parsedDomain;
+    try {
+        parsedDomain = psl.parse(new URL(url).hostname);
+    } catch (error) {
+        return [];
+    }
     if (parsedDomain && parsedDomain.domain) {
         const domain = parsedDomain.domain;
         if (rules[domain]) {
@@ -208,6 +235,7 @@ export function getList(data) {
                     delete item.target;
                     delete item.script;
                     delete item.verification;
+                    delete item.test;
                 });
             }
         }

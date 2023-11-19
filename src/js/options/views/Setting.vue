@@ -24,11 +24,11 @@
                 </div>
                 <div class="subtitle">{{ $i18n.t('rules update') }}</div>
                 <div class="setting-item">
-                    <div class="setting-name" v-if="defaultConfig.enableRemoteRules">我会自动更新，你也可以</div>
-                    <div class="setting-input" v-if="defaultConfig.enableRemoteRules">
-                        <el-button style="width: 98px" size="medium" @click="refreshRu" :disabled="refreshDisabled">{{ refreshDisabled ? '更新中' : '立即更新' }}</el-button><el-progress :text-inside="true" :stroke-width="20" :percentage="percentage"></el-progress><span class="time">{{ time }}前更新，{{ leftTime }}后自动更新</span>
+                    <div class="setting-name">{{ $i18n.t('i will update automatically and you can') }}</div>
+                    <div class="setting-input">
+                        <el-button style="" size="medium" @click="refreshRu" :disabled="refreshDisabled">{{ refreshDisabled ? $i18n.t('updating') : $i18n.t('update now') }}</el-button><el-progress :text-inside="true" :stroke-width="20" :percentage="percentage"></el-progress><span class="time">{{ time }} {{ $i18n.t('before update') }}, {{ leftTime }} {{ $i18n.t('after automatic update') }}</span>
                     </div>
-                    <div class="setting-name" v-if="!defaultConfig.enableRemoteRules">{{ $i18n.t('enable remote rules') }}</div>
+                    <div class="setting-name" v-if="!defaultConfig.enableFullRemoteRules">{{ $i18n.t('full remote updates are disabled due to browser limitations') }}</div>
                 </div>
                 <div class="subtitle">{{ $i18n.t('one-click subscription') }}</div>
                 <div class="setting-item">
@@ -64,10 +64,12 @@
                     <div class="setting-name">Inoreader <a target="_blank" href="https://www.inoreader.com/"><i class="el-icon-info"></i></a></div>
                     <div class="setting-input">
                         <el-checkbox @change="saveConfig" v-model="config.submitto.inoreader">{{ $i18n.t('enable') }}</el-checkbox>
+			            <el-input @change="saveConfig" style="margin-left: 20px;" v-if="config.submitto.inoreader" v-model="config.submitto.inoreaderDomain" :placeholder="$i18n.t('required address', {service: 'Inoreader'})"></el-input>
                     </div>
                     <div class="setting-name">Feedbin <a target="_blank" href="https://feedbin.com/"><i class="el-icon-info"></i></a></div>
                     <div class="setting-input">
                         <el-checkbox @change="saveConfig" v-model="config.submitto.feedbin">{{ $i18n.t('enable') }}</el-checkbox>
+			            <el-input @change="saveConfig" style="margin-left: 20px;" v-if="config.submitto.feedbin" v-model="config.submitto.feedbinDomain" :placeholder="$i18n.t('required address', {service: 'Feedbin'})"></el-input>
                     </div>
                     <div class="setting-name">The Old Reader <a target="_blank" href="https://theoldreader.com/"><i class="el-icon-info"></i></a></div>
                     <div class="setting-input">
